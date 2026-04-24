@@ -32,7 +32,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret-key-change-this',
   resave: false,
   saveUninitialized: true,
-  cookie: { 
+  cookie: {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
@@ -42,7 +42,7 @@ app.use(session({
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve static frontend files
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.use(express.static(path.join(__dirname, "dist")));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -53,12 +53,12 @@ app.use('/api/public', publicRoutes);
 
 // React routing support - must be after API routes
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  
+
   // Start the background campaign daemon
   worker.startWorker();
 });
