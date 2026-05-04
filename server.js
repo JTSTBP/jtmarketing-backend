@@ -12,6 +12,7 @@ const leadRoutes = require('./routes/leads');
 const templateRoutes = require('./routes/templates');
 const campaignRoutes = require('./routes/campaigns');
 const publicRoutes = require('./routes/public');
+const adminRoutes = require('./routes/admin');
 const worker = require('./worker');
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/admin', adminRoutes);
 
 // React routing support - must be after API routes
 app.get(/.*/, (req, res) => {

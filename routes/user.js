@@ -6,29 +6,7 @@ const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-jwt-secret';
 
-// Signup
-router.post('/signup', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        const user = new User({ name, email, password });
-        await user.save();
-
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-
-        res.status(201).json({
-            token,
-            user: { id: user._id, name: user.name, email: user.email }
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating user', error: error.message });
-    }
-});
 
 // Login
 router.post('/login', async (req, res) => {
@@ -37,7 +15,7 @@ router.post('/login', async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: 'Email not registered. Please sign up first.' });
+            return res.status(404).json({ message: 'Email not registered.' });
         }
 
         const isMatch = await user.comparePassword(password);
@@ -49,7 +27,7 @@ router.post('/login', async (req, res) => {
 
         res.json({
             token,
-            user: { id: user._id, name: user.name, email: user.email }
+            user: { id: user._id, name: user.name, email: user.email, role: user.role }
         });
     } catch (error) {
         res.status(500).json({ message: 'Error logging in', error: error.message });
@@ -100,13 +78,10 @@ router.put('/password', async (req, res) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const { currentPassword, newPassword } = req.body;
+        const { newPassword } = req.body;
         
         const user = await User.findById(decoded.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
-
-        const isMatch = await user.comparePassword(currentPassword);
-        if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
 
         user.password = newPassword;
         await user.save(); // triggers pre('save') hook to hash
