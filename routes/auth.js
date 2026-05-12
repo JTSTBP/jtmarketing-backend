@@ -37,10 +37,11 @@ router.get('/google/url', authMiddleware, (req, res) => {
     const url = client.generateAuthUrl({
         access_type: 'offline',
         scope: [
+            'openid',
             'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/gmail.readonly',
-            'https://www.googleapis.com/auth/gmail.send'
+            'https://www.googleapis.com/auth/userinfo.profile'
         ],
+
         prompt: 'consent',
         state: req.user.id.toString()   // pass userId via state — survives the redirect
     });
