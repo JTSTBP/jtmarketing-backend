@@ -58,6 +58,35 @@ router.post('/users', async (req, res) => {
     }
 });
 
+// Update user
+router.put('/users/:id', async (req, res) => {
+    try {
+        const { name, email, password, role } = req.body;
+        const user = await User.findById(req.params.id);
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Check if email is being changed and if new email already exists
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ message: 'User with this email already exists' });
+            }
+            user.email = email;
+        }
+
+        if (name) user.name = name;
+        if (role) user.role = role;
+        if (password) user.password = password; // Will be hashed by pre-save hook
+
+        await user.save();
+
+        res.json({ message: 'User updated successfully', user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating user', error: error.message });
+    }
+});
+
 // Delete user
 router.delete('/users/:id', async (req, res) => {
     try {
