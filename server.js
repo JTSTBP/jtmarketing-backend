@@ -28,7 +28,22 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5174'
-].filter(Boolean);
+].filter(Boolean).map(url => url.replace(/\/$/, ''));
+
+// Add www/non-www counterpart of FRONTEND_URL if it is configured
+if (process.env.FRONTEND_URL) {
+  const cleanUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
+  try {
+    const parsed = new URL(cleanUrl);
+    if (parsed.hostname && !parsed.hostname.startsWith('www.') && !parsed.hostname.includes('localhost') && !parsed.hostname.includes('127.0.0.1')) {
+      allowedOrigins.push(`${parsed.protocol}//www.${parsed.hostname}`);
+    } else if (parsed.hostname && parsed.hostname.startsWith('www.')) {
+      allowedOrigins.push(`${parsed.protocol}//${parsed.hostname.substring(4)}`);
+    }
+  } catch (e) {
+    // Ignore invalid URL
+  }
+}
 
 app.use(cors({
   origin: function (origin, callback) {
